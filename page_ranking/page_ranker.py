@@ -10,20 +10,21 @@ class PageRanker:
 
     def rank_pages(self, alpha, teleportation_rate):
         ids_manager = IdsManager()
-        matrix = Matrix(alpha, teleportation_rate, ids_manager)
+        matrix_calculator = MatrixCalculator(alpha, teleportation_rate, ids_manager)
         for page in ElasticReader.read_pages(self.elastic_address, self.index_name):
-            matrix.add_page(page)
-            break
+            matrix_calculator.add_page(page)
+        matrix = matrix_calculator.get_matrix()
 
 
-class Matrix:
+
+class MatrixCalculator:
     pages: Dict[str, Dict[str, float]]
 
     def __init__(self, alpha, teleportation_rate, ids_manager: IdsManager):
         self.ids_manager: IdsManager = ids_manager
         self.teleportation_rate = teleportation_rate
         self.alpha = alpha
-        self.pages = []
+        self.pages = {}
 
     def add_page(self, page_dict: Dict):
         this_page_url: str = page_dict['url']
@@ -37,7 +38,7 @@ class Matrix:
         related_count = len(page_dict['related_product'])
 
         for link in page_dict['related_product']:
-            related_url = link.replace('https://digikala.com', '', 1)
+            related_url = link.replace('https://www.digikala.com', '', 1)
             self.ids_manager.get_id_by_url(related_url)
             self.pages[this_page_url][related_url] = self.alpha * (1 - self.teleportation_rate) / related_count
 
@@ -49,8 +50,8 @@ class Matrix:
             if row_page in processed_pages:
                 not_linked_pages_count = len(all_seen_pages) - len(self.pages[row_page])
                 for column_page in all_seen_pages:
-                    if column_page not in self.pages[row_page]:
-                        self.pages[row_page] = self.teleportation_rate / not_linked_pages_count
+                    if column_page not in self.pages[row_page].keys():
+                        self.pages[row_page][column_page] = self.alpha * self.teleportation_rate / not_linked_pages_count
             else:
                 self.pages[row_page] = {}
                 for column_page in all_seen_pages:
@@ -59,7 +60,7 @@ class Matrix:
                     else:
                         self.pages[row_page][column_page] = self.alpha / (len(all_seen_pages) - 1)
 
-        matrix = ([None] * len(all_seen_pages)) * len(all_seen_pages)
+        matrix = [[0.0 for i in range(len(all_seen_pages))] for x in range(len(all_seen_pages))]
         for row_page in self.pages.keys():
             row_id = self.ids_manager.get_id_by_url(row_page)
             for column_page in self.pages[row_page].keys():
@@ -69,4 +70,4 @@ class Matrix:
         return matrix
 
 
-PageRanker('http://localhost:9200', 'test-index3').rank_pages()
+PageRanker('http://localhost:9200', 'test-index3').rank_pages(0.85, 0.1)

@@ -4,7 +4,7 @@ from typing import Dict
 class IdsManager:
     id_to_url_dic: Dict[int, str] = {}
     url_to_id_dic: Dict[str, int] = {}
-    first_available_id: int = 1
+    first_available_id: int = 0
 
     def assign_new_id(self) -> int:
         self.first_available_id += 1

@@ -91,6 +91,3 @@ class MatrixCalculator:
                 matrix[row_id][column_id] = self.pages[row_page][column_page]
 
         return numpy.array(matrix), processed_pages
-
-
-PageRanker('http://localhost:9200', 'test-index3').rank_pages(0.85, 0.1)

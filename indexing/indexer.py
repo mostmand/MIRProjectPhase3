@@ -50,10 +50,7 @@ class Indexer:
                     yield json.load(open_file)
 
 
-def index():
-    jsons_path = 'jsons'
-    elastic_address = 'localhost:9200'
-    index_name = 'test-index3'
+def index(jsons_path, elastic_address, index_name):
     remove_index(elastic_address, index_name)
     indexer = Indexer(elastic_address)
     indexer.index(index_name, jsons_path)

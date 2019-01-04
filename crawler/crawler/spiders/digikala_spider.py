@@ -63,7 +63,7 @@ class DigikalaSpider(scrapy.Spider):
         document.related_product = relative_urls
 
         json = JSONSerializer.serialize(document)
-        filename = 'jsons/digikala-%s.json' % title
+        filename = self.path + 'digikala-%s.json' % title
         with open(filename, 'w') as f:
             f.write(json)
 

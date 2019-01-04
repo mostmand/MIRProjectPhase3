@@ -51,7 +51,6 @@ class Indexer:
 
 
 def index(jsons_path, elastic_address, index_name):
-    remove_index(elastic_address, index_name)
     indexer = Indexer(elastic_address)
     indexer.index(index_name, jsons_path)
 

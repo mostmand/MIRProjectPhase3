@@ -27,9 +27,9 @@ def get_input_from_user():
         yield inp
 
 
-jsons_path = 'jsons'
+jsons_path = '../indexing/jsons'
 elastic_address = 'localhost:9200'
-index_name = 'test-index3'
+index_name = 'test-index4'
 
 for inp in get_input_from_user():
     print(inp)

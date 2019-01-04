@@ -13,6 +13,30 @@ class ElasticReader:
         for result in results.hits.hits:
             yield result['_source']
 
+    @staticmethod
+    def update_page_rank(elastic_address, index_name, url, page_rank):
+        client = Elasticsearch(elastic_address)
+
+        search_body = {
+            "query": {
+                "bool": {
+                    "filter": {
+                        "term": {"url": '%s' % url}
+                    }
+                }
+            }
+        }
+        doc_id = client.search(index=index_name, body=search_body)['hits']['hits'][0]['_id']
+
+        update_body = {
+            "doc": {
+                "page_rank": page_rank
+            }
+        }
+
+        update_response = client.update(index=index_name, doc_type='_doc', id=doc_id, body=update_body)
+        pass
+
 
 # iterator = ElasticReader.read_pages('http://localhost:9200', 'test-index3').__iter__()
 # counter = 0

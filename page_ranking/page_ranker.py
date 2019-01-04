@@ -1,6 +1,7 @@
 from typing import List, Dict
 from page_ranking.elastic_reader import ElasticReader
 from page_ranking.ids_manager import IdsManager
+import numpy
 
 
 class PageRanker:
@@ -13,8 +14,30 @@ class PageRanker:
         matrix_calculator = MatrixCalculator(alpha, teleportation_rate, ids_manager)
         for page in ElasticReader.read_pages(self.elastic_address, self.index_name):
             matrix_calculator.add_page(page)
-        matrix = matrix_calculator.get_matrix()
+        (matrix, available_pages) = matrix_calculator.get_matrix()
+        x = [0.0 for i in range(len(matrix))]
+        first_page_id = ids_manager.get_id_by_url('/product/dkp-173097/%D8%AA%D8%A8%D9%84%D8%AA-%D8%A7%DB%8C%D8%B3%D9%88%D8%B3-%D9%85%D8%AF%D9%84-zenpad-80-z380knl-4g-%D8%B8%D8%B1%D9%81%DB%8C%D8%AA-16-%DA%AF%DB%8C%DA%AF%D8%A7%D8%A8%D8%A7%DB%8C%D8%AA')
+        x[first_page_id] = 1
 
+        x = numpy.array(x)
+
+        max_iterations = 100
+        error_tolerance = 1e-6
+
+        for _ in range(max_iterations):
+            last_x = x
+            x = numpy.matmul(x, matrix)
+            error = sum([abs(x[i] - last_x[i]) for i in range(len(x))])
+            if error < len(matrix) * error_tolerance:
+                break
+
+        page_ranks = {}
+        for available_url in available_pages:
+            available_url_id = ids_manager.get_id_by_url(available_url)
+            page_ranks[available_url] = x[available_url_id]
+
+        for (url, page_rank) in page_ranks.items():
+            ElasticReader.update_page_rank(self.elastic_address, self.index_name, url, page_rank)
 
 
 class MatrixCalculator:
@@ -43,8 +66,8 @@ class MatrixCalculator:
             self.pages[this_page_url][related_url] = self.alpha * (1 - self.teleportation_rate) / related_count
 
     def get_matrix(self):
-        processed_pages = self.pages.keys()
-        all_seen_pages = self.ids_manager.url_to_id_dic.keys()
+        processed_pages = list(self.pages.keys())
+        all_seen_pages = list(self.ids_manager.url_to_id_dic.keys())
 
         for row_page in all_seen_pages:
             if row_page in processed_pages:
@@ -67,7 +90,7 @@ class MatrixCalculator:
                 column_id = self.ids_manager.get_id_by_url(column_page)
                 matrix[row_id][column_id] = self.pages[row_page][column_page]
 
-        return matrix
+        return numpy.array(matrix), processed_pages
 
 
 PageRanker('http://localhost:9200', 'test-index3').rank_pages(0.85, 0.1)

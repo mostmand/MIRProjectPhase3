@@ -28,10 +28,10 @@ class Indexer:
     @staticmethod
     def create_mapping():
         mapping = Mapping(name='_doc')
-        mapping.field('title', Keyword())
-        mapping.field('url', Text())
-        mapping.field('category', Keyword())
-        mapping.field('expert_summary', Keyword())
+        mapping.field('title', Text())
+        mapping.field('url', Keyword())
+        mapping.field('category', Text())
+        mapping.field('expert_summary', Text())
         rating = Nested(
             properties={
                 'criteria': Text(),
@@ -54,6 +54,7 @@ def index():
     jsons_path = 'jsons'
     elastic_address = 'localhost:9200'
     index_name = 'test-index3'
+    remove_index(elastic_address, index_name)
     indexer = Indexer(elastic_address)
     indexer.index(index_name, jsons_path)
 
@@ -61,4 +62,5 @@ def index():
 def remove_index(elastic_address, index_name):
     indexer = Indexer(elastic_address)
     indexer.remove_index(index_name)
+
 

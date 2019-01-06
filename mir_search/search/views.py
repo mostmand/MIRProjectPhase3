@@ -1,12 +1,10 @@
 from django.http import HttpResponse
-from django.shortcuts import render
 import json
+import searching
 
 
 def search(request):
     if request.method == 'POST':
         dic = json.loads(request.body)
-        print(dic['mustArray'])
-        return HttpResponse('Salaam')
-    else:
+        searching.search.search(dic['mustArray'], dic['mustNotArray'], dic['shouldArray'])
         return HttpResponse('Salaam')

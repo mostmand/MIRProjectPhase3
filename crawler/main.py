@@ -46,7 +46,5 @@ for inp in get_input_from_user():
         alpha = float(input())
         teleportation_rate = 0.1
         page_ranking.page_ranker.PageRanker(elastic_address, index_name).rank_pages(alpha, teleportation_rate)
-    elif inp == 5:
-        pass
     else:
         print('Your input is not recognized')

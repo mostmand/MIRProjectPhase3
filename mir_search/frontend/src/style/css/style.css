@@ -62,3 +62,7 @@ div.ReactTags__suggestions ul li.ReactTags__activeSuggestion {
 body{
     background-color: #fefefe
 }
+
+.multiple-space{
+    white-space: pre-wrap;
+}

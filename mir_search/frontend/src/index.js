@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import { WithContext as ReactTags } from 'react-tag-input';
+import {WithContext as ReactTags} from 'react-tag-input';
 import './style/css/bootstrap.min.css'
 import './style/css/style.css'
 
@@ -9,7 +9,7 @@ const KeyCodes = {
     enter: 13,
 };
 
-const delimiters = [KeyCodes.comma, KeyCodes.enter];
+const delimiters = [KeyCodes.enter];
 
 class TagAdder extends Component{
     constructor(props) {
@@ -63,7 +63,6 @@ class TagAdder extends Component{
                 <div className="card-header">{this.props.header}</div>
                 <div className="card-body" id={this.props.id}>
                     <ReactTags tags={tags}
-                        // suggestions={suggestions}
                                handleDelete={this.handleDelete}
                                handleAddition={this.handleAddition}
                                handleDrag={this.handleDrag}
@@ -111,7 +110,6 @@ class App extends Component {
 
         http.onreadystatechange = function() {
             if(http.readyState === 4 && http.status === 200) {
-                // alert(http.responseText);
                 document.getElementById('search-result-area').innerText = http.responseText;
             }
         };
@@ -128,7 +126,7 @@ class App extends Component {
                 <TagAdder id={'should-tag'} placeholder={"Add new should item"} header={'Should Items'}/>
                 <div className="button btn btn-success" id={"search-button"} onClick={this.search}>Search</div>
                 <div className="card">
-                    <div className="card-body" id="search-result-area">
+                    <div className="card-body multiple-space" id="search-result-area">
 
                     </div>
                 </div>
